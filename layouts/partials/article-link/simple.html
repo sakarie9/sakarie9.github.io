@@ -7,7 +7,7 @@
 {{ $articleClasses = delimit (slice $articleClasses "") " " }}
 {{ end }}
 
-{{ $articleImageClasses := "w-full md:w-auto h-full thumbnail nozoom rounded-md animate-pulse" }}
+{{ $articleImageClasses := "w-full md:w-auto h-full thumbnail nozoom rounded-md" }}
 {{ if .Site.Params.list.showCards }}
 {{ $articleImageClasses = delimit (slice $articleImageClasses "") " " }}
 {{ else }}
