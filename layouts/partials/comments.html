@@ -15,7 +15,7 @@ https://gohugo.io/content-management/comments/ */ -}}
         // Set timeout to properly change theme
         setTimeout(function(){
             sendMessage({ setConfig: { theme: getStoredTheme() } })
-        }, 500);
+        }, 10);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
