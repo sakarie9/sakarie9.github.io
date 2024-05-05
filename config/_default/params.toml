@@ -49,6 +49,7 @@ smartTOCHideUnfocusedChildren = true
 
 [article]
   showDate = true
+  showComments = true
   showViews = false
   showLikes = false
   showDateOnlyInArticle = false
@@ -117,6 +118,15 @@ smartTOCHideUnfocusedChildren = true
   groupByYear = false
   cardView = false
   cardViewScreenWidth = false
+
+[giscus]
+    repo = "sakarie9/sakarie9.github.io"
+    repoID = "R_kgDOL0X9AQ"
+    category = "Announcements"
+    categoryID = "DIC_kwDOL0X9Ac4CfJpw"
+    mapping = "pathname"
+    lang = "zh-CN"
+    reactionsEnabled = "0"
 
 [firebase]
   # apiKey = "XXXXXX"

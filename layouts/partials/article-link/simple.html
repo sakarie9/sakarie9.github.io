@@ -27,7 +27,6 @@
 {{ $articleClasses = delimit (slice $articleClasses "max-w-prose") " " }}
 {{ end }}
 
-
 {{ with .Params.externalUrl }}
 <a class="{{ $articleClasses }}" href="{{ . }}" target="_blank" rel="external">
   {{ else }}
@@ -67,15 +66,27 @@
       {{ end }}
     {{- else -}}
       {{/*  if no futured images  */}}
+      {{/*  {{ $base := "https://tuapi.eees.cc/api.php?category=dongman&type=302&rand=" }}  */}}
 
-      {{ $rnd := shuffle (seq 1 1 1000) }}
+      {{/*  {{ $rnd := shuffle (seq 1 1 1000) }}
       {{ $firstValue := index $rnd 0 }}
       {{ $base := "https://source.unsplash.com/random/800x200?wallpaper&rand=" }}
-      {{/*  {{ $base := "https://tuapi.eees.cc/api.php?category=dongman&type=302&rand=" }}  */}}
       {{ $url := printf "%s%d" $base $firstValue }}
-      <div class="{{ $articleImageClasses }}" style="background-image:url({{ $url }});"></div>
+      <div class="{{ $articleImageClasses }}" style="background-image:url({{ $url }});"></div>  */}}
 
       {{/*  if no futured images  */}}
+
+      <div class="{{ $articleImageClasses }}"></div>
+
+      <script>
+        (function () { 
+          var id = encodeURIComponent($('a.article').attr('href'))
+          var rand = Math.round(Math.random()*100)
+          var url = 'https://source.unsplash.com/random/800x200?wallpaper&rand=' + Math.round(Math.random()*100);
+          var backgroundImageStyle = 'url(' + url + ')';
+          $('#image-lazy').css('background-image', backgroundImageStyle);
+        })();
+      </script>
 
     {{- with $.Site.Params.images }}
     <meta property="og:image" content="{{ index . 0 | absURL }}" />{{ end -}}
