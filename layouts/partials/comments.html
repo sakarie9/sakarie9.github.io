@@ -3,7 +3,7 @@
 https://gohugo.io/content-management/comments/ */ -}}
 <div class="comments">
   <script>
-    const getStoredTheme = () => localStorage.getItem("appearance") === "dark" ? "transparent_dark" : "light"
+    const getStoredTheme = () => document.documentElement.classList.contains("dark") ? "transparent_dark" : "light"
 
     const setGiscusTheme = () => {
         const sendMessage = (message) => {
