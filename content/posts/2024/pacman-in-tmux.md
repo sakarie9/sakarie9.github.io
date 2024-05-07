@@ -1,36 +1,36 @@
 ---
 date: "2024-05-07T16:29:35+08:00"
-title: "在 Tmux 中进行 Arch Linux 的滚动更新"
+title: "在 tmux 中进行 Arch Linux 的滚动更新"
 tags: [Linux]
 categories: 技术分享
 ---
 
-在 Tmux 中进行 Arch Linux 的滚动更新
+在 tmux 中进行 Arch Linux 的滚动更新
 
 <!-- more -->
 
 ## 前言
 
-在 Tmux 中进行滚动更新，比直接在终端中直接滚动有着更多好处：
+在 tmux 中进行滚动更新，比直接在终端中直接滚动有着更多好处：
 
 - 防止更新过程中误关闭终端
 - 更新后关闭终端也能重新连接回去查看更新日志
 
-但是如果不是重度 Tmux 用户，更新前手动进入 Tmux 再更新显得有些繁琐
+但是如果不是重度 tmux 用户，更新前手动进入 tmux 再更新显得有些繁琐
 
-因此本文提出一个在普通终端下直接唤起 Tmux 并运行更新命令的脚本，此脚本有以下特点：
+因此本文提出一个在普通终端下直接唤起 tmux 并运行更新命令的脚本，此脚本有以下特点：
 
-- 在终端内运行脚本，如果对应的 Session 不存在，则新建一个 Tmux Session 并运行命令
+- 在终端内运行脚本，如果对应的 Session 不存在，则新建一个 tmux Session 并运行命令
 - 如果对应的 Session 已经存在，则直接运行命令，并连接回此 Session
-- 如果已经在 Tmux 内，直接运行命令
+- 如果已经在 tmux 内，直接运行命令
 
 {{< mermaid >}}
 
 graph LR
 
 A[运行脚本]
-B[Attach Tmux Session]
-BN[New Tmux Session]
+B[Attach tmux Session]
+BN[New tmux Session]
 C[Command]
 
 A -- Session 不存在 --- BN
