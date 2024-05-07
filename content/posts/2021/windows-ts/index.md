@@ -27,7 +27,7 @@ banner_img: /img/posts/ts.webp
 
 下载并打开 [shexview](http://www.nirsoft.net/utils/shexview.html) ，找到`MF MPEG Property Handler`，右键Disable即可
 
-![](/img/posts/ts-1.png)
+![](ts-1.png)
 
 ## Icaros
 
@@ -35,9 +35,5 @@ banner_img: /img/posts/ts.webp
 
 [下载链接](https://www.majorgeeks.com/files/details/icaros.html)
 
-{% gi 2 2 %}
-  ![](/img/posts/ts-2.png)
-  ![](/img/posts/ts-3.png)
-{% endgi %}
-
-<center>👈启用前&emsp;&emsp;&emsp;&emsp;启用后👉</center>
+![](ts-2.png "启用前")
+![](ts-3.png "启用后")

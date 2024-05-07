@@ -3,7 +3,6 @@ title: Heroku+Cloudflare 免费账号实现24/7在线及域名绑定
 date: 2022-07-23 11:45:14
 categories: 技术分享
 tags: [Cloudflare]
-image: cover.webp
 ---
 
 > **2022/12/28, Heroku 将结束免费方案，此教程同步作废**
