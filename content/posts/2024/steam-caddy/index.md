@@ -1,5 +1,5 @@
 ---
-title: 在Linux上使用Caddy反代Steam社区
+title: 在 Linux 上使用 Caddy 反代 Steam 社区
 date: 2024-05-07
 categories: 技术分享
 tags: [Linux, Network]
@@ -98,12 +98,8 @@ tls steamcommunity.crt steamcommunity.key
 
 ### 安装证书
 
-{{< alert >}}
-`/home/user/.pki/nssdb` 和 `/dir/to/steamcommunityCA.pem` 都需要修改成具体的绝对路径
-{{< /alert >}}
-
 ```bash
-certutil -A -d sql:/home/user/.pki/nssdb -n "Steamcommunity302" -t C,, -i "/dir/to/steamcommunityCA.pem"
+certutil -A -d sql:~/.pki/nssdb -n "Steamcommunity302" -t C,, -i "steamcommunityCA.pem"
 
 sudo cp steamcommunityCA.pem /etc/ca-certificates/trust-source/anchors/steamcommunityCA.crt
 
