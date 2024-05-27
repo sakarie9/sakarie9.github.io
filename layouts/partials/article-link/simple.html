@@ -68,12 +68,20 @@
     {{- else -}}
       {{/*  if no futured images  */}}
 
-      {{ $rnd := shuffle (seq 1 1 1000) }}
+      {{/*  {{ $rnd := shuffle (seq 1 1 1000) }}
       {{ $firstValue := index $rnd 0 }}
       {{ $base := "https://source.unsplash.com/random/800x200?wallpaper&rand=" }}
-      {{/*  {{ $base := "https://tuapi.eees.cc/api.php?category=dongman&type=302&rand=" }}  */}}
       {{ $url := printf "%s%d" $base $firstValue }}
-      <div class="{{ $articleImageClasses }}" style="background-image:url({{ $url }});"></div>
+      <div class="{{ $articleImageClasses }}" style="background-image:url({{ $url }});"></div>  */}}
+
+      {{ $rnd := shuffle (seq 1 1 9) }}
+      {{ $firstValue := index $rnd 0 }}
+      {{ $base := "img/default_" }}
+      {{ $url1 := printf "%s%d" $base $firstValue }}
+      {{ $url2 := printf "%s%s" $url1 ".svg" }}
+      {{ with resources.Get $url2 }}
+        <div class="{{ $articleImageClasses }}" style="background-image:url({{ .RelPermalink }});"></div>
+      {{ end }}
 
       {{/*  if no futured images  */}}
 
