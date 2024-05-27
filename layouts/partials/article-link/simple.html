@@ -66,7 +66,7 @@
         {{ end }}
       {{ end }}
     {{- else -}}
-      {{/*  if no futured images  */}}
+      {{/*  if no feature images  */}}
 
       {{/*  {{ $rnd := shuffle (seq 1 1 1000) }}
       {{ $firstValue := index $rnd 0 }}
@@ -83,7 +83,7 @@
         <div class="{{ $articleImageClasses }}" style="background-image:url({{ .RelPermalink }});"></div>
       {{ end }}
 
-      {{/*  if no futured images  */}}
+      {{/*  if no feature images  */}}
 
     {{- with $.Site.Params.images }}
     <meta property="og:image" content="{{ index . 0 | absURL }}" />{{ end -}}
