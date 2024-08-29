@@ -86,3 +86,9 @@ weight = 10
 name = "标签"
 pageRef = "tags"
 weight = 20
+
+[[footer]]
+pre = "rss"
+name = "RSS"
+url = "https://sakari.top/index.xml"
+weight = 30

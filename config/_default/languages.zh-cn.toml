@@ -15,7 +15,7 @@ secondaryLogo = "img/secondary-logo.png"
 description = "Sakari's Personal Blog"
 copyright = "2021 - { year } @Sakari"
 
-[author]
+[params.author]
 name = "Sakari"
 image = "img/avatar.webp"
 headline = "I'm only human"
