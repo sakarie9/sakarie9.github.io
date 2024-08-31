@@ -3,6 +3,7 @@ date: "2024-08-31T10:36:13+08:00"
 title: "使用 FFmpeg 转换音频为 Opus：避坑指南与实战经验"
 tags: [Linux, Audio]
 categories: 技术分享
+summary: 如何使用 FFmpeg 将音频文件转换为 Opus，以及转换过程中遇到的各种坑
 ---
 
 如何使用 FFmpeg 将音频文件转换为 Opus，以及转换过程中遇到的各种坑。
