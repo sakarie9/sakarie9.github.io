@@ -184,11 +184,13 @@ find "$SOURCE_DIR" -type f -name "*.flac" |
 
 注意到其中我们引入了一个中间文件 `$cover_convert_file`，在并行中需要使用合适的路径避免多线程同时读写一个文件造成的冲突，这里将中间文件使用源文件的目录结构和文件名放在临时文件目录中避免冲突。
 
-### 环境变量
+### 变量导出
 
 到这里脚本差不多已经完成了，但是还有一个问题，在函数中使用变量时需要提前导出变量。
 
 在上面的 `convert_to_opus()` 中使用了 `SOURCE_DIR` 变量，这样就需要在函数中先进行导出，否则函数内此变量不存在就会为空。
+
+要在下面的 parallel 中调用的函数也需要用 `export -f` 导出
 
 ```Bash
 export SOURCE_DIR
@@ -197,6 +199,7 @@ convert_to_opus() {
   input_file=$1
   relative_path="${input_file#"$SOURCE_DIR"/}"
 }
+export -f convert_to_opus
 ```
 
 ## 完整脚本
