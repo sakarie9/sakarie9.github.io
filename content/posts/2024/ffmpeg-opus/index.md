@@ -278,8 +278,8 @@ if [ $# -ne 2 ]; then
 fi
 
 # 获取参数
-SOURCE_DIR="$1"
-DEST_DIR="$2"
+SOURCE_DIR="${1%/}"
+DEST_DIR="${2%/}"
 
 # 检查源目录是否存在
 if [ ! -d "$SOURCE_DIR" ]; then
