@@ -9,7 +9,6 @@ defaultContentLanguage = "zh-cn"
 # pluralizeListTitles = "true" # hugo function useful for non-english languages, find out more in  https://gohugo.io/getting-started/configuration/#pluralizelisttitles
 
 enableRobotsTXT = true
-paginate = 10
 summaryLength = 0
 
 buildDrafts = false
@@ -35,6 +34,10 @@ priority = 0.5
 
 [outputs]
 home = ["HTML", "RSS", "JSON"]
+
+[pagination]
+pagerSize = 10
+path = 'page'
 
 [related]
 threshold = 0
