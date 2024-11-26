@@ -5,7 +5,7 @@ showViews: false
 showWordCount: false
 showReadingTime: false
 showLikes: false
-# showTableOfContents: false
+showTableOfContents: false
 showAuthorBottom: false
 showZenMode: false
 ---

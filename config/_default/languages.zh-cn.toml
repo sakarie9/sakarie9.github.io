@@ -10,16 +10,14 @@ displayName = "ZH-CN"
 isoCode = "zh-cn"
 rtl = false
 dateFormat = "2006-01-02"
-# logo = "img/20642596.png"
-secondaryLogo = "img/secondary-logo.png"
 description = "Sakari's Personal Blog"
 copyright = "2021 - { year } @Sakari"
 
 [params.author]
 name = "Sakari"
 image = "img/avatar.webp"
-headline = "I'm only human"
-bio = "A little bit about you"
+# headline = "I'm only human"
+# bio = "A little bit about you"
 links = [
   { email = "mailto:me@sakari.top" },
   { link = "https://sakari.top" },
