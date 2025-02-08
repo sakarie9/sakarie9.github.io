@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sakari.top/sitemap.xml
