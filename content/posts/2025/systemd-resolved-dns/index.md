@@ -52,6 +52,16 @@ UseDNS=no
 UseDNS=no
 ```
 
+如果在使用 `IPv6AcceptRA`，还需要禁用它的 DNS
+
+```plain
+[Network]
+IPv6AcceptRA = true
+
+[IPv6AcceptRA]
+UseDNS=no
+```
+
 ### NetworkManager
 
 这里使用 `nmtui`，在 `编辑连接-选择接口` 中，分别在 IPv4 配置 和 IPv6 配置中，勾选 `忽略自动获取的DNS参数`，使用空格在选项上打钩
