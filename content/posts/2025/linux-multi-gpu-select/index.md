@@ -133,7 +133,7 @@ Selected GPU 0: AMD Radeon Graphics (RADV RENOIR), type: IntegratedGpu
 
 ```shell
 #!/bin/bash
-DRI_PRIME=vid:did` "$@"
+DRI_PRIME=vid:did "$@"
 ```
 
 在运行软件时只需要 `exec-dgpu whatever` 即可。
