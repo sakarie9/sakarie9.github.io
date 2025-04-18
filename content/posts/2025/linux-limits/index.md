@@ -46,6 +46,14 @@ Unhandled Exception: EETypeRva:0x00667F40: Too many open files
 # * hard nofile 524288 # 保留系统默认 hard limit
 ```
 
+---
+
+对 systemd 单元，在 `/etc/systemd/system.conf` 和 `/etc/systemd/user.conf` 中添加：
+
+```
+DefaultLimitNOFILE=8192:524288
+```
+
 ### 步骤 2：立即生效配置
 
 ```bash
@@ -100,6 +108,7 @@ sudo systemctl restart your-service
 - 使用 `cat /proc/<PID>/limits` 验证进程实际限制
 
 **Q：应该设置多大的值？**
+
 应用类型 | 推荐 soft limit
 --------------|-----------------
 Web 服务器 | 65535-131072
