@@ -1,16 +1,77 @@
 ---
-title: 在 Linux 上使用 Caddy 反代 Steam 社区
+title: 在 Linux 上反代 Steam 社区
 date: 2024-05-07
 categories: 技术分享
-tags: [Linux, Network]
+tags:
+  - Linux
+  - Network
+summary: 在 Linux 上 使用 Steamcommunity 302 并使用 systemd 实现开机自启
 ---
 
-在 Linux 上 使用 Caddy 原生实现 [Steamcommunity 302](https://www.dogfight360.com/blog/686/) 的功能并实现开机自启
+在 Linux 上 使用 [Steamcommunity 302](https://www.dogfight360.com/blog/18682/) 并使用 systemd 实现开机自启
 
 <!-- more -->
 
+### 配置
+
+根据需要勾选所需的功能
+
+```bash
+chmod +x Steamcommunity_302
+./Steamcommunity_302
+```
+
+![steam302.webp](steam302.webp)
+
+### 测试
+
+```bash
+chmod +x steamcommunity_302.cli
+sudo ./steamcommunity_302.cli
+```
+
+测试是否能正常访问 steam 及社区
+
+### 自启
+
+修改路径
+
+```plain
+# /etc/systemd/system/steamcommunity-302.service
+
+[Unit]
+Description=Steamcommunity_302 Steam Reverse Proxy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/path_to_302/Steamcommunity_302
+ExecStart=/path_to_302/Steamcommunity_302/steamcommunity_302.cli
+
+[Install]
+WantedBy=multi-user.target
+```
+
+然后启动
+
+```bash
+systemctl enable --now steamcommunity-302.service
+```
+
+---
+
 {{< alert >}}
+
+v13 已经原生支持 Linux，以下为旧版本配置
+
+{{< /alert >}}
+
+在 Linux 上 使用 Caddy 原生实现 [Steamcommunity 302](https://www.dogfight360.com/blog/686/) 的功能并实现开机自启
+
+{{< alert >}}
+
 以下操作均在 Arch Linux 下进行，其他发行版可能需要适当修改证书安装的路径及所用命令
+
 {{< /alert >}}
 
 ### 生成配置文件
@@ -39,7 +100,7 @@ tags: [Linux, Network]
 
 ### 下载 Caddy
 
-在 [caddy/release](https://github.com/caddyserver/caddy/releases/tag/v2.7.6) 下载对应平台的 caddy（如 amd64 下载  `caddy_2.7.6_linux_amd64.tar.gz` ）
+在 [caddy/release](https://github.com/caddyserver/caddy/releases/tag/v2.7.6) 下载对应平台的 caddy（如 amd64 下载 `caddy_2.7.6_linux_amd64.tar.gz` ）
 
 解压出来 `caddy` 二进制文件放入 `/data/caddy`
 
@@ -108,13 +169,13 @@ sudo trust extract-compat
 
 ### 启动服务
 
-赋予caddy可执行权限
+赋予 caddy 可执行权限
 
 ```bash
 chmod +x caddy
 ```
 
-赋予caddy监听所需端口权限
+赋予 caddy 监听所需端口权限
 
 ```bash
 sudo setcap CAP_NET_BIND_SERVICE=+eip caddy
