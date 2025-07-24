@@ -42,7 +42,7 @@
     {{ end }}
     {{- if not $featured }}{{ with .Site.Params.defaultFeaturedImage }}{{ $featured = resources.Get . }}{{ end }}{{ end -}}
     {{ if .Params.hideFeatureImage }}{{ $featured = false }}{{ end }}
-    
+
     {{/*  {{ if not $featured }}
       {{ $rnd := shuffle (seq 1 1 100) }}
       {{ $firstValue := index $rnd 0 }}
@@ -74,13 +74,13 @@
         当文章没有特色图像时，基于文章标题选择固定的默认图像
         这样可以确保同一篇文章总是显示相同的默认图像，而不是随机图像
       */}}
-      
+
       {{/* 步骤1: 获取用于哈希计算的字符串，优先级：文章标题 > 文件名 > "default" */}}
       {{ $titleForHash := .Title | default .File.BaseFileName | default "default" }}
-      
+
       {{/* 步骤2: 对标题字符串进行SHA256哈希，生成固定的哈希值 */}}
       {{ $titleHash := sha256 $titleForHash }}
-      
+
       {{/* 步骤3: 计算哈希值的数值和，用于映射到图像索引 */}}
       {{ $hashSum := 0 }}
       {{ range $i, $char := split $titleHash "" }}
@@ -91,15 +91,15 @@
           {{ $hashSum = add $hashSum $charVal }}
         {{ end }}
       {{ end }}
-      
+
       {{/* 步骤4: 将哈希和映射到1-9的范围内，对应9张默认图像 */}}
       {{ $imageIndex := mod $hashSum 9 | add 1 }}
-      
+
       {{/* 步骤5: 构建图像文件路径 */}}
       {{ $base := "img/default_" }}                    {{/* 基础路径 */}}
       {{ $url1 := printf "%s%d" $base $imageIndex }}   {{/* 拼接索引号：img/default_1 */}}
-      {{ $url2 := printf "%s%s" $url1 ".webp" }}       {{/* 添加扩展名：img/default_1.webp */}}
-      
+      {{ $url2 := printf "%s%s" $url1 ".svg" }}       {{/* 添加扩展名：img/default_1.svg */}}
+
       {{/* 步骤6: 尝试获取图像资源并显示 */}}
       {{ with resources.Get $url2 }}
         <div class="{{ $articleImageClasses }}" style="background-image:url({{ .RelPermalink }});"></div>
