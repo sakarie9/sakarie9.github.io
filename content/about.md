@@ -8,6 +8,7 @@ showLikes: false
 showTableOfContents: false
 showAuthorBottom: false
 showZenMode: false
+showComments: false
 ---
 
 ## About Me
