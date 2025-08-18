@@ -12,7 +12,7 @@ summary:
 
 OpenAL 会优先使用 JACK 而非 PipeWire 的 PulseAudio 后端，将其指定为 PulseAudio 可解决此问题
 
-新建 `/etc/openal/alsoft.conf` (或 `~/.alsoftrc`)
+新建 `/etc/openal/alsoft.conf` (或 `~/.alsoftrc`；或 `$XDG_CONFIG_HOME/alsoft.conf`)
 
 ```
 drivers=pulse
