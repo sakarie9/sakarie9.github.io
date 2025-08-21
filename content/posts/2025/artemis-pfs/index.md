@@ -41,7 +41,7 @@ The PFS format uses a structured approach to store file metadata and data. The f
 | 0x7      | 0x4               | File Count             | Total number of files in the archive                                                                |
 | 0xB      | X                 | File Entries           | Array of file entry structures. [See Below](#link-file-entry)                                       |
 | 0xB+X    | 0x4               | File Size Count        | Number of file size entries (File Count + 1)                                                        |
-| 0xF+X    | Y=0x8*(filecount) | File Size Offsets      | Array of 8-byte offsets pointing to file sizes in File Entries. [See Below](#link-file-size-offset) |
+| 0xF+X    | Y=0x8*(FileCount) | File Size Offsets      | Array of 8-byte offsets pointing to file sizes in File Entries. [See Below](#link-file-size-offset) |
 | 0xF+X+Y  | 0x8               | File Size Offset End   | Padding bytes (filled with zeros)                                                                   |
 | 0x17+X+Y | 0x4               | File Size Count Offset | Offset to File Size Count field, calculated from position 0x7                                       |
 
@@ -73,4 +73,8 @@ Each entry in the File Size Offsets array is an 8-byte offset value that points 
 **Important:** The offset is calculated relative to position 0xF (the start of the File Size Offsets array).
 
 **Example:**
-If a file size offset contains the value `0x25`, the actual file size can be read from `&pfs[0x25 + 0xF..0x25 + 0xF + 0x4]`.
+If a file size offset contains the value `0x25`, the actual file size can be read from `&pfs[0x25+0xF..0x25+0xF+0x4]`.
+
+## Encryption
+
+todo
