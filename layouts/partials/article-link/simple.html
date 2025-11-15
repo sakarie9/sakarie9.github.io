@@ -6,8 +6,8 @@
 {{ $constrainItemsWidth := site.Params.list.constrainItemsWidth | default false }}
 {{ $disableImageOptimization := site.Store.Get "disableImageOptimization" }}
 
-{{ $cardClasses := "flex flex-col md:flex-row relative" }}
-{{ $imgWrapperClasses := "" }}
+{{ $cardClasses := "flex flex-col md:flex-row relative hover-zoom border border-neutral-200 dark:border-neutral-700 border-2 rounded-md overflow-hidden" }}
+{{ $imgWrapperClasses := "rounded-md" }}
 {{ $cardContentClasses := "" }}
 
 {{ if site.Params.list.showCards }}
@@ -16,8 +16,8 @@
   {{ $cardContentClasses = printf "%s p-4" $cardContentClasses }}
 {{ else }}
   {{ $cardClasses = $cardClasses }}
-  {{ $imgWrapperClasses = printf "%s thumbnail-shadow md:mr-7" $imgWrapperClasses }}
-  {{ $cardContentClasses = printf "%s mt-3 md:mt-0" $cardContentClasses }}
+  {{ $imgWrapperClasses = printf "%s thumbnail-shadow md:mr-0 mr-3" $imgWrapperClasses }}
+  {{ $cardContentClasses = printf "%s mt-3 md:mt-1" $cardContentClasses }}
 {{ end }}
 
 {{ if $constrainItemsWidth }}
