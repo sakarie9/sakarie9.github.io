@@ -74,13 +74,13 @@ Each file in the archive is described by a variable-length entry in the _File En
 
 > **Note:** The offsets listed below are relative to the start of the specific file entry.
 
-| Relative Offset | Size | Field Name      | Description                                                                                                                          |
-| :-------------- | :--- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
-| `0x00`          | 4    | **Name Length** | The length of the filename in bytes.                                                                                                 |
-| `0x04`          | _N_  | **File Name**   | The filename string. Length is defined by _Name Length_.                                                                             |
-| `0x04 + N`      | 4    | **Separator**   | A separator field, typically filled with null bytes (`0x00`).                                                                        |
-| `0x08 + N`      | 4    | **Data Offset** | The absolute offset of the file's data from the beginning of the PFS file. [Understanding Data Offsets](#understanding-data-offsets) |
-| `0x0C + N`      | 4    | **File Size**   | The size of the file's data in bytes.                                                                                                |
+| Relative Offset | Size | Field Name      | Description                                                                                                                               |
+| :-------------- | :--- | :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------- |
+| `0x00`          | 4    | **Name Length** | The length of the filename in bytes.                                                                                                      |
+| `0x04`          | _N_  | **File Name**   | The filename string. Length is defined by _Name Length_.                                                                                  |
+| `0x04 + N`      | 4    | **Separator**   | A separator field, typically filled with null bytes (`0x00`).                                                                             |
+| `0x08 + N`      | 4    | **Data Offset** | The absolute offset of the file's data from the beginning of the PFS file. See [Understanding Data Offsets](#understanding-data-offsets). |
+| `0x0C + N`      | 4    | **File Size**   | The size of the file's data in bytes.                                                                                                     |
 
 ### Understanding Data Offsets
 
@@ -118,46 +118,94 @@ If a File Size Offset entry contains `0x25`:
 
 ## Encryption
 
-PFS archives (specifically the `pf8` variant) use a custom encryption scheme to protect file assets. The encryption is applied on a per-file basis using a dynamically generated key.
+PFS archives (specifically the `pf8` variant) use a custom encryption scheme to protect file data. The encryption uses a stream cipher based on XOR operations with a dynamically generated key.
 
 ### Key Generation
 
-The encryption key is derived from the archive's header data using the SHA-1 hashing algorithm.
+The encryption key is derived from the archive's header index data using the SHA-1 hashing algorithm.
 
-1. **Source Data**: The data used to generate the key is the "Index Data" section of the archive.
-   - **Start Offset**: `0x7`
-   - **Length**: The value specified in the `Index Size` field (at offset `0x3`).
-2. **Algorithm**: SHA-1
-3. **Key**: The resulting 20-byte hash digest is used as the encryption key.
+**Key Generation Process:**
+
+1. **Source Data**: Extract the index data from the archive header
+
+   - **Start Offset**: `0x07` (immediately after the magic number and index size fields)
+   - **Length**: The value specified in the **Index Size** field (at offset `0x03`)
+   - This includes the file count, all file entries, file size offsets, padding, and index end offset
+
+2. **Hashing**: Apply SHA-1 hash to the index data
+
+   - **Algorithm**: SHA-1
+   - **Output**: 20-byte (160-bit) hash digest
+
+3. **Result**: The 20-byte SHA-1 hash serves as the encryption key
 
 ```rust
-// Rust pseudo-code for key generation
-let index_data = &file_data[0x7 .. 0x7 + index_size];
-let key = sha1(index_data);
+// Key generation example
+let index_size = read_u32_le(&archive_data[0x03..0x07]);
+let index_data = &archive_data[0x07 .. 0x07 + index_size as usize];
+let key = sha1(index_data); // 20 bytes
 ```
 
 ### Encryption Algorithm
 
-The encryption is a simple XOR cipher using the generated key.
+The encryption uses a simple but effective XOR stream cipher with the generated key.
 
-- **Method**: XOR (Exclusive OR)
-- **Key Usage**: The key is repeated cyclically.
-- **Scope**: Encryption is applied to the file data only, not the headers.
-- **Per-File Reset**: The key stream resets for each file. The first byte of a file's data is always XORed with the first byte of the key.
+**Algorithm Characteristics:**
+
+- **Method**: XOR (Exclusive OR) cipher
+- **Key Stream**: The 20-byte key is repeated cyclically to match the data length
+- **Scope**: Only file data is encrypted; headers and index structures remain in plaintext
+- **Per-File Encryption**: Each file is encrypted independently, with the key stream starting from the beginning for each file
+
+**Encryption Formula:**
 
 {{< katex >}}
 
-$$C*i = P_i \oplus K*{i \pmod L}$$
+$$C_i = P_i \oplus K_{i \bmod L}$$
 
 Where:
 
-- \(C_i\) is the \(i\)-th byte of the encrypted data
-- \(P_i\) is the \(i\)-th byte of the plaintext data
-- \(K\) is the generated key
-- \(L\) is the length of the key (20 bytes)
+- \(C_i\) is the \(i\)-th byte of ciphertext (encrypted data)
+- \(P_i\) is the \(i\)-th byte of plaintext (original data)
+- \(K\) is the 20-byte encryption key
+- \(L = 20\) (key length in bytes)
+- \(i\) is the byte position **within the current file** (starting from 0 for each file)
 
-### Selective Encryption
+**Encryption Example:**
 
-Not all files in a `pf8` archive are necessarily encrypted. The format supports selective encryption, typically used to leave large media files (like `.mp4` or `.flv`) unencrypted to allow for streaming playback without decryption overhead.
+```rust
+// Each file is encrypted independently
+for file in files {
+    let mut file_data = read_file_data(file);
 
-Whether a file is encrypted or not is usually determined by its file extension or a flag in the file entry (though the specific flag mechanism is implementation-dependent, often inferred from the file type).
+    // XOR with key starting from offset 0 for this file
+    for (i, byte) in file_data.iter_mut().enumerate() {
+        *byte ^= key[i % key.len()];
+    }
+
+    write_encrypted_data(file_data);
+}
+```
+
+For large files that are processed in chunks, the offset is tracked within that file only:
+
+```rust
+let mut offset_in_file = 0;
+
+while let Some(chunk) = read_chunk() {
+    for (i, byte) in chunk.iter_mut().enumerate() {
+        *byte ^= key[(offset_in_file + i) % key.len()];
+    }
+    offset_in_file += chunk.len();
+}
+```
+
+### Decryption
+
+Decryption is identical to encryption due to the XOR cipher's symmetric nature:
+
+{{< katex >}}
+
+$$P_i = C_i \oplus K_{i \bmod L}$$
+
+Each file is decrypted independently using the same key, with the key stream restarting from position 0 for each file.
