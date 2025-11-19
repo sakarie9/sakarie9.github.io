@@ -9,72 +9,155 @@ summary: A comprehensive analysis of the PFS file format structure used by the A
 
 ## Introduction
 
-PFS is a proprietary archive format used by the [Artemis](https://www.ies-net.com/) visual novel engine. This format serves as a container for game assets, allowing developers to package multiple files into a single archive for distribution and efficient asset management.
+**PFS** is a proprietary archive format utilized by the [Artemis](https://www.ies-net.com/) visual novel engine. It functions as a container for game assets, enabling efficient packaging and distribution of multiple files within a single archive.
 
-This document provides a complete technical specification of the PFS file format, reverse-engineered through analysis of actual game files. The information presented here enables developers to create tools for extracting, analyzing, and manipulating PFS archives.
+This document presents a comprehensive technical specification of the PFS file format, derived from reverse-engineering analysis. It aims to assist developers in building tools for extracting, inspecting, and modifying PFS archives.
 
 ### Related Tools
 
-I have developed several tools for working with PFS files:
+I have developed the following tools to facilitate working with PFS files:
 
-- **[pf8](https://crates.io/crates/pf8)** - A Rust library providing encoding and decoding functionality for PFS files
-- **[pfs-rs](https://github.com/sakarie9/pfs-rs)** - A command-line tool for packing and unpacking PFS archives
+- **[pf8](https://crates.io/crates/pf8)**: A Rust library offering robust encoding and decoding capabilities for PFS files.
+- **[pfs-rs](https://github.com/sakarie9/pfs-rs)**: A command-line utility for packing and unpacking PFS archives.
 
 {{< github repo="sakarie9/pfs-rs" showThumbnail=false >}}
 
 ## PFS File Format Structure
 
-The PFS format uses a structured approach to store file metadata and data. The format consists of a header section containing file indices and metadata, followed by the actual file data. This design allows for efficient random access to individual files within the archive.
+The PFS format employs a straightforward structure to organize file metadata and content. It begins with a **Header** section that indexes all contained files, followed immediately by the **File Data** section. This layout supports efficient random access to any file within the archive.
 
 {{< alert >}}
-
-**Important:** All multi-byte values in PFS files are stored in little-endian byte order.
-
+**Note:** All multi-byte integer values in PFS files are stored in **little-endian** byte order.
 {{< /alert >}}
 
 ## Header Structure
 
-| Offset   | Size              | Name                   | Description                                                                                         |
-| -------- | ----------------- | ---------------------- | --------------------------------------------------------------------------------------------------- |
-| 0x0      | 0x3               | Magic Number           | File signature: `pf8`                                                                               |
-| 0x3      | 0x4               | Index Size             | Size from File Count start to File Size Count Offset end: `[0x7, 0x1B+X+Y)`                         |
-| 0x7      | 0x4               | File Count             | Total number of files in the archive                                                                |
-| 0xB      | X                 | File Entries           | Array of file entry structures. [See Below](#link-file-entry)                                       |
-| 0xB+X    | 0x4               | File Size Count        | Number of file size entries (File Count + 1)                                                        |
-| 0xF+X    | Y=0x8*(FileCount) | File Size Offsets      | Array of 8-byte offsets pointing to file sizes in File Entries. [See Below](#link-file-size-offset) |
-| 0xF+X+Y  | 0x8               | File Size Offset End   | Padding bytes (filled with zeros)                                                                   |
-| 0x17+X+Y | 0x4               | File Size Count Offset | Offset to File Size Count field, calculated from position 0x7                                       |
+The header contains global archive information and the index of all files.
 
-## File Entry Structure {#link-file-entry}
+To represent the variable-length sections, we define the following symbols:
 
-For clarity, offsets shown below start from 0x0. Remember to add the file entry base offset of 0xB when working with the complete PFS file.
+- **`N`**: The number of files (value of _File Count_).
+- **`S_Entries`**: The total size in bytes of the _File Entries_ array.
+- **`S_Offsets`**: The total size in bytes of the _File Size Offsets_ array (equal to `8 * N`).
 
-| Offset | Size             | Name             | Description                                                                           |
-| ------ | ---------------- | ---------------- | ------------------------------------------------------------------------------------- |
-| 0x0    | 0x4              | File Name Length | Length of the filename in bytes                                                       |
-| 0x4    | X=FileNameLength | File Name        | Filename string (length specified by previous field)                                  |
-| 0x4+X  | 0x4              | Null Terminator  | String terminator (filled with zeros)                                                 |
-| 0x8+X  | 0x4              | Offset           | Absolute offset to file data within the PFS file.[See Below](#link-file-data-offsets) |
-| 0xC+X  | 0x4              | File Size        | Size of the file data in bytes                                                        |
+| Offset                         | Size        | Field Name            | Description                                              |
+| :----------------------------- | :---------- | :-------------------- | :------------------------------------------------------- |
+| `0x00`                         | 3           | **Magic Number**      | File signature: `pf8` (or `pf6`).                        |
+| `0x03`                         | 4           | **Index Size**        | Size of the index data (from `0x07` to end of header).   |
+| `0x07`                         | 4           | **File Count** (`N`)  | Total number of files in the archive.                    |
+| `0x0B`                         | `S_Entries` | **File Entries**      | Array of [File Entry](#file-entry-structure) structures. |
+| `0x0B + S_Entries`             | 4           | **File Size Count**   | Number of size offsets (typically `N + 1`).              |
+| `0x0F + S_Entries`             | `S_Offsets` | **File Size Offsets** | Array of 8-byte offsets pointing to file sizes.          |
+| `0x0F + S_Entries + S_Offsets` | 8           | **Padding**           | Zero-filled padding bytes.                               |
+| `0x17 + S_Entries + S_Offsets` | 4           | **Index End Offset**  | Pointer to _File Size Count_ (relative to `0x07`).       |
 
-### Understanding File Data Offsets {#link-file-data-offsets}
+{{< mermaid >}}
 
-The offset field in each file entry represents the absolute position of the file data within the entire PFS file, **not** relative to the file entry itself.
+%%{init: {'flowchart': {'nodeSpacing': 15, 'rankSpacing': 15}, 'themeVariables': {'fontSize': '12px'}}}%%
+graph TD
+Magic[0x00: Magic Number] --> IndexSize[0x03: Index Size]
+IndexSize --> FileCount[0x07: File Count]
+FileCount --> FileEntries[0x0B: File Entries]
+FileEntries -- Size: S_Entries --> FileSizeCount[File Size Count]
+FileSizeCount --> FileSizeOffsets[File Size Offsets]
+FileSizeOffsets -- Size: S_Offsets --> Padding[Padding]
+Padding --> EndOffset[Index End Offset]
+
+    style FileEntries fill:#d9d,stroke:#333,stroke-width:2px
+    style FileSizeOffsets fill:#0bf,stroke:#333,stroke-width:2px
+
+{{< /mermaid >}}
+
+## File Entry Structure
+
+Each file in the archive is described by a variable-length entry in the _File Entries_ section.
+
+> **Note:** The offsets listed below are relative to the start of the specific file entry.
+
+| Relative Offset | Size | Field Name      | Description                                                                                                                          |
+| :-------------- | :--- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `0x00`          | 4    | **Name Length** | The length of the filename in bytes.                                                                                                 |
+| `0x04`          | _N_  | **File Name**   | The filename string. Length is defined by _Name Length_.                                                                             |
+| `0x04 + N`      | 4    | **Separator**   | A separator field, typically filled with null bytes (`0x00`).                                                                        |
+| `0x08 + N`      | 4    | **Data Offset** | The absolute offset of the file's data from the beginning of the PFS file. [Understanding Data Offsets](#understanding-data-offsets) |
+| `0x0C + N`      | 4    | **File Size**   | The size of the file's data in bytes.                                                                                                |
+
+### Understanding Data Offsets
+
+The **Data Offset** field specifies the absolute position of the file's content within the archive.
 
 **Example:**
-For a file entry with `offset=0xBD` and `size=0x000326C8`, the file data spans from byte `0xBD` to byte `0xBD + 0x000326C8` in the PFS file. In array notation: `&pfs[offset..offset+size]`.
+If a file entry has a **Data Offset** of `0xBD` and a **File Size** of `0x100`:
 
-## File Size Offset Structure {#link-file-size-offset}
+- The file's data begins at byte `0xBD` of the PFS file.
+- The data ends at byte `0x1BD` (`0xBD + 0x100`).
+- In Rust slice notation: `archive_data[0xBD .. 0x1BD]`.
 
-![File Size Offset Diagram](file-size-offset.svg)
+## File Size Offset Structure
 
-Each entry in the File Size Offsets array is an 8-byte offset value that points to the corresponding file size within the File Entries section.
+{{< mermaid >}}
+%%{init: { "packet": { "bitsPerRow": 8 } } }%%
+packet
++8: "File Size Offset"
++8: "File Size Offset"
++8: "..."
+{{< /mermaid >}}
 
-**Important:** The offset is calculated relative to position 0xF (the start of the File Size Offsets array).
+The **File Size Offsets** section provides a secondary way to navigate the file entries, specifically pointing to the size fields.
+
+- Each entry is an **8-byte** integer.
+- The value is an offset relative to the start of the _File Size Offsets_ array itself.
+- It points to the `File Size` field of a specific File Entry.
 
 **Example:**
-If a file size offset contains the value `0x25`, the actual file size can be read from `&pfs[0x25+0xF..0x25+0xF+0x4]`.
+If a File Size Offset entry contains `0x25`:
+
+1. Locate the start of the _File Size Offsets_ array (let's say it's at absolute offset `0xF` for simplicity, though it varies).
+2. Add `0x25` to that start position.
+3. The resulting address points to the 4-byte `File Size` value of a file entry.
 
 ## Encryption
 
-todo
+PFS archives (specifically the `pf8` variant) use a custom encryption scheme to protect file assets. The encryption is applied on a per-file basis using a dynamically generated key.
+
+### Key Generation
+
+The encryption key is derived from the archive's header data using the SHA-1 hashing algorithm.
+
+1. **Source Data**: The data used to generate the key is the "Index Data" section of the archive.
+   - **Start Offset**: `0x7`
+   - **Length**: The value specified in the `Index Size` field (at offset `0x3`).
+2. **Algorithm**: SHA-1
+3. **Key**: The resulting 20-byte hash digest is used as the encryption key.
+
+```rust
+// Rust pseudo-code for key generation
+let index_data = &file_data[0x7 .. 0x7 + index_size];
+let key = sha1(index_data);
+```
+
+### Encryption Algorithm
+
+The encryption is a simple XOR cipher using the generated key.
+
+- **Method**: XOR (Exclusive OR)
+- **Key Usage**: The key is repeated cyclically.
+- **Scope**: Encryption is applied to the file data only, not the headers.
+- **Per-File Reset**: The key stream resets for each file. The first byte of a file's data is always XORed with the first byte of the key.
+
+{{< katex >}}
+
+$$C*i = P_i \oplus K*{i \pmod L}$$
+
+Where:
+
+- \(C_i\) is the \(i\)-th byte of the encrypted data
+- \(P_i\) is the \(i\)-th byte of the plaintext data
+- \(K\) is the generated key
+- \(L\) is the length of the key (20 bytes)
+
+### Selective Encryption
+
+Not all files in a `pf8` archive are necessarily encrypted. The format supports selective encryption, typically used to leave large media files (like `.mp4` or `.flv`) unencrypted to allow for streaming playback without decryption overhead.
+
+Whether a file is encrypted or not is usually determined by its file extension or a flag in the file entry (though the specific flag mechanism is implementation-dependent, often inferred from the file type).
