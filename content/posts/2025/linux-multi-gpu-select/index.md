@@ -89,6 +89,58 @@ Selected GPU 0: AMD Radeon Graphics (RADV RENOIR), type: IntegratedGpu
 
 因此，在我们想要指定显卡的应用程序运行前加上 `DRI_PRIME=vendor_id:device_id!` 就能强制使其使用指定的显卡了。
 
+## 显卡睡眠
+
+在同时拥有核显和独显的笔记本等设备上，有时用户会希望使用核显完成桌面渲染、视频输出等所有工作，只有在游戏/AI 时，显式调用独显，在不使用独显时希望独显能进入睡眠状态省电。
+
+首先查看显卡对应的 `card*`：
+
+```shell
+❯ ls -l /dev/dri/by-path/
+lrwxrwxrwx 1 root root  8 12月 5日 18:22 pci-0000:10:00.0-card -> ../card1
+lrwxrwxrwx 1 root root 13 12月 5日 18:22 pci-0000:10:00.0-render -> ../renderD128
+lrwxrwxrwx 1 root root  8 12月 5日 18:22 pci-0000:30:00.0-card -> ../card2
+lrwxrwxrwx 1 root root 13 12月 5日 18:22 pci-0000:30:00.0-render -> ../renderD129
+```
+
+```shell
+❯ lspci -nn | grep -i vga
+10:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Ellesmere [Radeon RX 470/480/570/570X/580/580X/590] [1002:67df] (rev e7)
+30:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Cezanne [Radeon Vega Series / Radeon Vega Mobile Series] [1002:1638] (rev c9)
+```
+
+这里得到我的独显是 `card1`，用自己的替换下列命令中的 `card1`。
+
+首先确认 `cat /sys/class/drm/card1/device/power/control` 需要为 `auto`。
+
+然后用 `cat /sys/class/drm/card1/device/power/runtime_status` 查看当前显卡状态，`active` 为显卡正在运行，`suspended` 为已睡眠，正常情况下闲置 5s 左右就会进入睡眠。
+
+如果显卡无法进入睡眠，可能有多种情况：
+
+- 被占用
+		使用 `sudo fuser -v /dev/dri/renderD128` 查看占用显卡的进程
+- 音频驱动占用
+		使用 `echo '0000:10:00.1' | sudo tee /sys/bus/pci/drivers/snd_hda_intel/unbind` 解绑显卡的 HDMI 音频输出驱动，注意执行后此显卡将无法输出声音
+		`0000:10:00.1` 使用 `lspci -nn | grep -i audio` 获取
+
+## Vulkan
+
+Vulkan 存在的问题是，其在初始化时会遍历唤醒所有显卡，即使 Vulkan 程序在后续不会使用这张显卡。
+
+对此没有什么好的手段规避，只能通过 `DRI_PRIME=vendor_id:device_id!` 的方式强行让程序只在初始化时唤醒一次显卡，后续不再使用。
+
+如果只使用 `DRI_PRIME=vendor_id:device_id`，程序会在后续依然占用显卡，表现为：
+
+```shell
+❯ sudo fuser -v /dev/dri/renderD128
+                     用户     进程号 权限   命令
+/dev/dri/renderD128: sakari    17133 F.... chromium
+                     sakari    18849 F.... electron
+                     sakari    60517 F...m vkcube
+```
+
+权限多了 `m`，即 `Mapped`，有了它显卡就不会进入睡眠。
+
 ## 应用
 
 > 使用 `MESA_VK_DEVICE_SELECT=list vulkaninfo` 查看显卡 id，替换下面样例中的 `vid:did`
