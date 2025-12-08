@@ -1,10 +1,11 @@
-﻿---
+---
 title: Image Recognition
 date: 2018-06-05
 categories: Archived
+draft: "true"
 ---
 
-[第十一届河南省ACM程序设计竞赛 I题][1]
+[第十一届河南省 ACM 程序设计竞赛 I 题][1]
 
 <!-- more -->
 
@@ -234,6 +235,5 @@ int main()
 	system("pause");
 }
 ```
-
 
   [1]: http://acm.hi-54.com/problem.php?pid=2113
