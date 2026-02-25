@@ -7,7 +7,7 @@ categories: 技术分享
 
 ### Waydroid
 
-Waydroid 的安装参考 [Arch Wiki](<(https://wiki.archlinux.org/title/Waydroid)>)
+Waydroid 的安装参考 [Arch Wiki](https://wiki.archlinux.org/title/Waydroid)
 
 ### 内核模块
 
