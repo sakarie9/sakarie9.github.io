@@ -9,6 +9,11 @@ tags: [Games]
 
 <!-- more -->
 
+
+{{< alert icon="fire" cardColor="#e63946" iconColor="#1d3557" textColor="#f1faee" >}}
+此文章写于 2024-08-12，文中提到的汇率、手续费等信息可能会随时间发生变化，请以实际情况为准。
+{{< /alert >}}
+
 ## 前言
 
 DLsite 目前提供的点数购入网站一共有下面几种：
