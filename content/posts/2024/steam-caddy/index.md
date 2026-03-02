@@ -160,7 +160,7 @@ tls steamcommunity.crt steamcommunity.key
 ### 安装证书
 
 ```bash
-certutil -A -d sql:~/.pki/nssdb -n "Steamcommunity302" -t C,, -i "steamcommunityCA.pem"
+certutil -A -d sql:$HOME/.pki/nssdb -n "Steamcommunity302" -t C,, -i "steamcommunityCA.pem"
 
 sudo cp steamcommunityCA.pem /etc/ca-certificates/trust-source/anchors/steamcommunityCA.crt
 
