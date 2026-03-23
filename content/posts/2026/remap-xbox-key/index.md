@@ -63,7 +63,7 @@ sudo nano /etc/interception/udevmon.yaml
 填入以下极其精简、但蕴含黑魔法的配置。这里我们以将西瓜键映射为 **F12** 为例：
 
 ```yaml
-- JOB: 'evsieve --input $DEVNODE grab --map btn:mode key:f12@kb --output @kb name="Evsieve Virtual Xbox Keyboard" --output name="Evsieve Virtual Xbox Controller"'
+- JOB: 'evsieve --input $DEVNODE grab --map btn:mode key:f12@kb --output @kb name="Evsieve Virtual Xbox Keyboard" --output name="Microsoft Xbox Controller"'
   DEVICE:
     EVENTS:
       EV_KEY: [BTN_MODE]
@@ -75,7 +75,9 @@ sudo nano /etc/interception/udevmon.yaml
 - `$DEVNODE grab`：`udevmon` 自动匹配插入的手柄，并以独占模式（Grab）接管它，让物理手柄在内核中隐身，防止产生双重输入冲突。
 - `--map btn:mode key:f12@kb`：这是破局的核心！拦截 `BTN_MODE`（西瓜键），将其修改为 `KEY_F12`，并为其打上 `@kb` 的域标签。
 - `--output @kb name="Xbox Virtual KB"`：将所有带有 `@kb` 标签的事件（即 F12），单独输出到一个名为 `Evsieve Virtual Xbox Keyboard` 的虚拟键盘中。你的桌面环境会立刻、毫无阻碍地识别到这个键盘敲击。
-- `--output name="Evsieve Virtual Xbox Controller"`：将剩下所有没有打标签的事件（摇杆、十字键、ABXY 等），原封不动地输出到一个虚拟手柄中。你在 Steam 或模拟器里打游戏不会受到任何影响。
+- `--output name="Microsoft Xbox Controller"`：将剩下所有没有打标签的事件（摇杆、十字键、ABXY 等），原封不动地输出到一个虚拟手柄中。你在 Steam 或模拟器里打游戏不会受到任何影响。
+
+> 最后的 `--output name="Microsoft Xbox Controller"` 似乎只能手动改成和物理设备一样的名字，才能正确映射。否则可能会出现进游戏视角自动乱转等映射问题。
 
 ### 重启服务
 
