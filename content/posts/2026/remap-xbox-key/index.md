@@ -6,6 +6,7 @@ tags:
   - Games
 categories: 技术分享
 summary: 在 Linux 下使用 Interception + evsieve 重映射 Xbox 手柄的西瓜键或其他键来实现执行任意命令/脚本，比如截屏
+draft: true
 ---
 
 在 Linux 下使用 Interception + evsieve 重映射 Xbox 手柄的西瓜键或其他键来实现执行任意命令/脚本，比如截屏
